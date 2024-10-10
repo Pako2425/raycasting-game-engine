@@ -44,8 +44,8 @@ int main(int argc, char* argv[]) {
                                        1,0,0,0,0,0,0,0,0,1,
                                        1,0,0,0,0,0,0,0,0,1,
                                        1,0,0,0,0,0,0,0,0,1,
-                                       1,0,0,1,1,1,0,0,0,1,
-                                       1,0,0,0,1,1,0,0,0,1,
+                                       1,0,0,0,0,1,0,0,0,1,
+                                       1,0,0,0,0,1,0,0,0,1,
                                        1,0,0,0,0,1,0,0,0,1,
                                        1,0,0,0,0,0,0,0,0,1,
                                        1,0,0,0,0,0,0,0,0,1,
@@ -58,10 +58,11 @@ int main(int argc, char* argv[]) {
     const int deltaRay = 10;
     const int viewAngle = 70;
     const int raysNumber = 10;
+    const int dRaysAngle = (int)(viewAngle / raysNumber);
 
     int xPlayer = 100;
     int yPlayer = 270;
-    int playerRotation = 260;
+    int playerRotation = 0;
 
     while(isRunning) {
         while(SDL_PollEvent(&event)) {
@@ -90,22 +91,33 @@ int main(int argc, char* argv[]) {
         int rayLength = 0;
         bool wallCollision = false;
         
-        while((rayLength <= renderDistance) && (!wallCollision)) {
-            xRayEnd += (int)(deltaRay * cos(2*M_PI * playerRotation/360));
-            yRayEnd -= (int)(deltaRay * sin(2*M_PI * playerRotation/360));
-            rayLength += deltaRay;
-            int mapBlockIndex = (int)(xRayEnd / wBlock) + ((int)(yRayEnd / hBlock))*mapWidth;
-            
-            if(GameMap[mapBlockIndex] == 1) {
-                wallCollision = true;
+
+        int startAngle = playerRotation - (int)((raysNumber / 2) * dRaysAngle);
+        int endAngle = playerRotation + (int)((raysNumber / 2) * dRaysAngle);
+        for(int angle = startAngle; angle <= endAngle; angle = angle + dRaysAngle) {
+            std::cout << angle << std::endl;
+            xRayEnd = xPlayer;
+            yRayEnd = yPlayer;
+            rayLength = 0;
+            wallCollision = false;
+            while((rayLength <= renderDistance) && (!wallCollision)) {
+                xRayEnd += (int)(deltaRay * cos(2*M_PI * angle/360));
+                yRayEnd -= (int)(deltaRay * sin(2*M_PI * angle/360));
+                rayLength += deltaRay;
+                int mapBlockIndex = (int)(xRayEnd / wBlock) + ((int)(yRayEnd / hBlock))*mapWidth;
+                
+                if(GameMap[mapBlockIndex] == 1) {
+                    wallCollision = true;
+                }
             }
-            
+            SDL_SetRenderDrawColor(devRenderer, 0,255,0,255);
+            SDL_RenderDrawLine(devRenderer, xPlayer, yPlayer, xRayEnd, yRayEnd);    
         }
 
         //dx = singleBlockWidth - (xPlayer % singleBlockWidth)
 
-        SDL_SetRenderDrawColor(devRenderer, 0,255,0,255);
-        SDL_RenderDrawLine(devRenderer, xPlayer, yPlayer, xRayEnd, yRayEnd);
+        //SDL_SetRenderDrawColor(devRenderer, 0,255,0,255);
+        //SDL_RenderDrawLine(devRenderer, xPlayer, yPlayer, xRayEnd, yRayEnd);
 
         SDL_SetRenderDrawColor(devRenderer, 255,0,0,255);
         SDL_Rect playerRect = {xPlayer - 5, yPlayer - 5, 10, 10};
