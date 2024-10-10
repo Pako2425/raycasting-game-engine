@@ -1,6 +1,6 @@
 #include <SDL.h>
 #include <iostream>
-#include <math.h>
+#include <cmath>
 
 int main(int argc, char* argv[]) {
     if(SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -61,7 +61,7 @@ int main(int argc, char* argv[]) {
 
     int xPlayer = 100;
     int yPlayer = 270;
-    int playerRotation = 0;
+    int playerRotation = 260;
 
     while(isRunning) {
         while(SDL_PollEvent(&event)) {
@@ -91,8 +91,8 @@ int main(int argc, char* argv[]) {
         bool wallCollision = false;
         
         while((rayLength <= renderDistance) && (!wallCollision)) {
-            xRayEnd += deltaRay;
-            yRayEnd = yRayEnd;
+            xRayEnd += (int)(deltaRay * cos(2*M_PI * playerRotation/360));
+            yRayEnd -= (int)(deltaRay * sin(2*M_PI * playerRotation/360));
             rayLength += deltaRay;
             int mapBlockIndex = (int)(xRayEnd / wBlock) + ((int)(yRayEnd / hBlock))*mapWidth;
             
@@ -101,8 +101,6 @@ int main(int argc, char* argv[]) {
             }
             
         }
-            std::cout << rayLength << std::endl;
-
 
         //dx = singleBlockWidth - (xPlayer % singleBlockWidth)
 
